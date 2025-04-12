@@ -2,3 +2,4 @@
 backend/__pycache__/
 node_modules
 /env
+#hf_access_token.txt

@@ -2,7 +2,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
 
-login(token="INSERT_YOUR_HF_ACCESS_TOKEN_HERE")
+with open("hf_access_token.txt", 'r') as file:
+    token = file.read().strip()
+login(token=token)
 
 # tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
 # model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
