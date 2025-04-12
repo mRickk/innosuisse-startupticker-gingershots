@@ -27,13 +27,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-# def load_db_schema(db_schema_path):
-#     """Load database schema from a file"""
-#     # with open(db_schema_path, 'r', encoding='utf-8') as file:
-#     #     db_schema = file.read()
-#     # return db_schema
+# load db schema
 
-### CODE FOR THE DB SCHEMA HERE ###
 
 
 def generate_sql(self, question, dialect="MySQL", evidence=""):
