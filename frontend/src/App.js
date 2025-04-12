@@ -23,7 +23,7 @@ function App() {
     <div className="app-container">
         <Router>
         <Navbar />
-        <main className="grid grid-cols-[auto_80%_auto] py-36 justify-center">
+        <main>
           <Routes>
             <Route path="/home" element={<Home />} />
             <Route path="/search" element={<SearchEngine />} />
