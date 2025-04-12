@@ -22,8 +22,6 @@ conn.execute("PRAGMA foreign_keys = ON;")
 cursor = conn.cursor()
 
 # Drop tables if they exist
-cursor.execute("DROP TABLE IF EXISTS table2")
-cursor.execute("DROP TABLE IF EXISTS table1")
 cursor.execute("DROP TABLE IF EXISTS deal")
 cursor.execute("DROP TABLE IF EXISTS company")
 

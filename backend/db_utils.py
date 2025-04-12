@@ -5,11 +5,13 @@ import sqlite3
 import pandas as pd
 
 db_path = ""
+db_name = ""
 
 def get_db_abs_path():
     return db_path
 
 def set_db_abs_path(db_filename):
+    db_name = db_filename
     db_path = os.path.abspath(db_filename)
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"Database file {db_filename} not found.")
@@ -21,7 +23,7 @@ def create_schema():
     # Get the schema
     db_engine = create_engine(f'sqlite:///{get_db_abs_path()}')
 
-    schema_engine = SchemaEngine(engine=db_engine, db_name="my_database")
+    schema_engine = SchemaEngine(engine=db_engine, db_name=db_name)
     mschema = schema_engine.mschema
     mschema.add_foreign_key("deal", "Company", None, "company", "Title")
 
@@ -30,7 +32,6 @@ def create_schema():
     mschema_str = mschema_str.replace("main.", "")
     
     print("MSchema: " + mschema_str)
-    #mschema.save(f'./{"my_database"}.json')
     
     return mschema_str
 
