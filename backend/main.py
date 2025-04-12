@@ -9,6 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+import io
+import json
+
+from fastapi import UploadFile, File, Form
+
+
 # *****************************************************************************
 #                  Some global constants and variables
 # *****************************************************************************
@@ -84,3 +90,47 @@ def search(query: str):
     df = scripts.query_database(sql)
     charts_code = scripts.generate_charts_code(query, sql, df)
     return JSONResponse(content={"sql": sql, "charts_code": charts_code})
+
+
+@app.post("/data-swiss/")
+def upload_excel_swiss():
+    try:
+        excel_file = './data/Data-startupticker.xlsx'  
+        abs_path = os.path.abspath(excel_file)
+        sheet1 = 'Companies'  
+        sheet2 = 'Deals'
+
+        df1 = pd.read_excel(abs_path, sheet_name=sheet1)
+        df2 = pd.read_excel(abs_path, sheet_name=sheet2)
+
+        df1 = df1.drop_duplicates(subset="Title", keep="first")
+        df = pd.merge(df1, df2, how='left', left_on='Title', right_on='Company')
+
+        df = json.loads(df.to_json(orient='records',indent=4))
+        
+        return df
+    except Exception as e:
+        return f"Error: {e}"
+
+
+
+
+@app.post("/data-world/")
+def upload_excel_world():
+    try:
+        excel_file = './data/Data-crunchbase.xlsx'  
+        abs_path = os.path.abspath(excel_file)
+        sheet1 = 'organizations'  
+        sheet2 = 'funding rounds'
+
+        df1 = pd.read_excel(abs_path, sheet_name=sheet1)
+        df2 = pd.read_excel(abs_path, sheet_name=sheet2)
+
+        df1 = df1.drop_duplicates(subset="uuid", keep="first")
+        df = pd.merge(df1, df2, how='left', left_on='uuid', right_on='org_uuid')
+
+        df = json.loads(df.to_json(orient='records',indent=4))
+        
+        return df
+    except Exception as e:
+        return f"Error: {e}"
