@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
+import json
 
 with open("hf/hf_access_token.txt", 'r') as file:
     token = file.read().strip()
@@ -33,8 +34,9 @@ def generate_charts_code(question, query, df):
     {df}
 
     Output following this format:
-    {"code": "<insert code>", "description": "<insert description>"}
-    """
+    [{"code": "<insert code 1>", "description": "<insert description 1>"},
+    {"code": "<insert code 2>", "description": "<insert description 2>"},
+    ...]"""
     # inputs = tokenizer(input_text, return_tensors="pt").cuda()
     # outputs = model.generate(**inputs, max_length=128)
     # response = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -46,4 +48,11 @@ def generate_charts_code(question, query, df):
             top_p=0.9,                 # Nucleus sampling parameter
             return_full_text=False     # Only return the generated text, not the prompt
         )[0]['generated_text']
-    return response
+    try:
+        # Try to parse the response as JSON
+        parsed_response = json.loads(response)
+        return parsed_response
+    except json.JSONDecodeError:
+        # If parsing fails, log the error and return the raw response
+        print("Warning: Failed to parse response as JSON. Returning raw response.")
+        return response
