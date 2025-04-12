@@ -16,6 +16,7 @@ pipe = pipeline(
     device_map="auto"
 )
 
+# THIS FUNCTION WILL BE CHANGED IN THE API BRANCH
 def generate_charts_code(question, query, df):
     input_text = """You are a data analyst.
     You are given the original user question, the corresponding database query and a Pandas dataframe of the retrieved data.
@@ -31,6 +32,7 @@ def generate_charts_code(question, query, df):
 
     【Dataframe】
     {df}
+    
 
     Output following this format:
     {"code": "<insert code>", "description": "<insert description>"}
