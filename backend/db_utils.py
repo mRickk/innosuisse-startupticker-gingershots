@@ -4,11 +4,13 @@ from schema_engine import SchemaEngine
 import sqlite3
 import pandas as pd
 
+def get_db_abs_path():
+    db_path = "./my_database.db" 
+    return os.path.abspath(db_path)
+
 def create_schema():
     # Get the schema
-    db_path = "./my_database.db" 
-    abs_path = os.path.abspath(db_path)
-    db_engine = create_engine(f'sqlite:///{abs_path}')
+    db_engine = create_engine(f'sqlite:///{get_db_abs_path()}')
 
     schema_engine = SchemaEngine(engine=db_engine, db_name="my_database")
     mschema = schema_engine.mschema
@@ -24,9 +26,7 @@ def create_schema():
     return mschema_str
 
 def query_database(query):
-    db_path="backend/my_database.db"
-    abs_path = os.path.abspath(db_path)
-    conn = sqlite3.connect(abs_path)
+    conn = sqlite3.connect(get_db_abs_path())
     
     try:
         result_df = pd.read_sql(query, conn)

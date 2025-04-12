@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
 import os
+from db_utils import get_db_abs_path
 
 excel_file = './data/Data-startupticker.xlsx'  
 abs_path = os.path.abspath(excel_file)
@@ -15,7 +16,7 @@ df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 df1 = df1.drop_duplicates(subset="Title", keep="first")
 
 # Connect to DB
-conn = sqlite3.connect('my_database.db')
+conn = sqlite3.connect(get_db_abs_path())
 conn.execute("PRAGMA foreign_keys = ON;")
 cursor = conn.cursor()
 
