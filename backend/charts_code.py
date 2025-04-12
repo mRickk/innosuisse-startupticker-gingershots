@@ -1,8 +1,18 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
+from huggingface_hub import login
 
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
+login(token="INSERT_YOUR_HF_ACCESS_TOKEN_HERE")
+
+# tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
+# model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
+
+pipe = pipeline(
+    "Charts code generation using Charts.js and textual description generation",
+    model="meta-llama/Llama-3.2-3B", 
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
 
 def generate_charts_code(question, query, df):
     input_text = """You are a data analyst.
@@ -23,7 +33,15 @@ def generate_charts_code(question, query, df):
     Output following this format:
     {"code": "<insert code>", "description": "<insert description>"}
     """
-    inputs = tokenizer(input_text, return_tensors="pt").cuda()
-    outputs = model.generate(**inputs, max_length=128)
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # inputs = tokenizer(input_text, return_tensors="pt").cuda()
+    # outputs = model.generate(**inputs, max_length=128)
+    # response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = pipe(
+            input_text,
+            max_new_tokens=1000,        # Control the length of generated text
+            do_sample=True,            # Use sampling (more creative)
+            temperature=0.7,           # Control randomness (higher = more random)
+            top_p=0.9,                 # Nucleus sampling parameter
+            return_full_text=False     # Only return the generated text, not the prompt
+        )[0]['generated_text']
     return response
