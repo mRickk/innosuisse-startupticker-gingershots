@@ -9,6 +9,7 @@ def generate_charts_code(question, query, df):
     You are given the original user question, the corresponding database query and a Pandas dataframe of the retrieved data.
     Starting from the dataframe data, write JavaScript code using Charts.js to generate interactive charts (multiple if needed) that are relevant to the data.
     Do not put dependencies, just write the code that can be run directly inside another web application.
+    Then give a short description of the charts you created and what they represent.
 
     【Question】
     {question}
@@ -19,7 +20,8 @@ def generate_charts_code(question, query, df):
     【Dataframe】
     {df}
 
-    【Charts.js Code】    
+    Output following this format:
+    {"code": "<insert code>", "description": "<insert description>"}
     """
     inputs = tokenizer(input_text, return_tensors="pt").cuda()
     outputs = model.generate(**inputs, max_length=128)
