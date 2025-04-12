@@ -1,13 +1,15 @@
 import pandas as pd
 import sqlite3
+import os
 
 excel_file = './data/Data-startupticker.xlsx'  
+abs_path = os.path.abspath(excel_file)
 sheet1 = 'Companies'  
 sheet2 = 'Deals'
 
 # Read Excel sheets
-df1 = pd.read_excel(excel_file, sheet_name=sheet1)
-df2 = pd.read_excel(excel_file, sheet_name=sheet2)
+df1 = pd.read_excel(abs_path, sheet_name=sheet1)
+df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 
 # Df preprocessing
 df1 = df1.drop_duplicates(subset="Title", keep="first")
