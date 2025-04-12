@@ -1,8 +1,8 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-7b-base-v1.5", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-7b-base-v1.5", trust_remote_code=True).cuda()
+tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
 
 def generate_charts_code(question, query, df):
     input_text = """You are a data analyst.
