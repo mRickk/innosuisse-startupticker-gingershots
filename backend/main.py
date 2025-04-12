@@ -104,7 +104,7 @@ def upload_excel_swiss():
         df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 
         df1 = df1.drop_duplicates(subset="Title", keep="first")
-        df = pd.merge(df1, df2, how='left', left_on='Title', right_on='Company')
+        df = pd.merge(df1, df2, how='right', left_on='Title', right_on='Company')
 
         df = json.loads(df.to_json(orient='records',indent=4))
         
@@ -127,7 +127,7 @@ def upload_excel_world():
         df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 
         df1 = df1.drop_duplicates(subset="uuid", keep="first")
-        df = pd.merge(df1, df2, how='left', left_on='uuid', right_on='org_uuid')
+        df = pd.merge(df1, df2, how='right', left_on='uuid', right_on='org_uuid')
 
         df = json.loads(df.to_json(orient='records',indent=4))
         
