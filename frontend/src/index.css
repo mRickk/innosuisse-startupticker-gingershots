@@ -1,0 +1,122 @@
+body {
+  font-family: "Helvetica";
+  margin: 0;
+}
+
+code {
+  font-family: "Helvetica";
+}
+
+.logo{
+  font-family: "Helvetica";
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+  font-size: small
+}
+
+.fader {
+  background: linear-gradient(to bottom, #ff0055e1, #a000c0e1, #000060);
+  margin: 0;
+}
+
+.fader-inverse {
+  background: linear-gradient(to bottom, #000060, #a000c0e1, #ff0055e1);
+  margin: 0;
+}
+
+.truncated-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay {
+  position: relative;
+}
+
+.overlay::after {
+  content: "";
+  position: fixed;
+  z-index: 10;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000080;
+  pointer-events: none; 
+  transform: translateY(-100%); 
+  animation: deployOverlay 0.5s forwards;
+}
+
+.overlay.retract::after {
+  animation: retractOverlay 0.5s forwards; 
+}
+
+@keyframes deployOverlay {
+  to {
+    transform: translateY(0px); 
+  }
+}
+
+@keyframes retractOverlay {
+  from {
+    transform: translateY(0); 
+  }
+  to {
+    transform: translateY(-100%); 
+  }
+}
+
+.arrow-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 100px;
+  background-color: #4202a3;
+  color: white;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 300ms ease-in-out;
+}
+
+.arrow-btn:hover {
+  background-color: #4202a3;
+  color: white;
+  border: 2px solid #dc2626;
+}
+
+.arrow-icon {
+  width: 10px;
+  height: 10px;
+  border: 3px solid currentColor;
+  border-top: 0;
+  border-right: 0;
+  transform: rotate(45deg);
+}
+
+.arrow-btn.right .arrow-icon {
+  transform: rotate(-135deg);
+}
+
+.group_image:hover img {
+  filter: drop-shadow(0 0 0.4rem #4202a3);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
