@@ -2,20 +2,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
 from openai import OpenAI
+import json
 
 with open("hf/hf_access_token.txt", 'r') as file:
     token = file.read().strip()
-login(token=token)
-
-# tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
-# model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
-
-pipe = pipeline(
-    "text-generation",
-    model="meta-llama/Llama-3.2-3B", 
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
+    login(token=token)
 
 # THIS FUNCTION WILL BE CHANGED IN THE API BRANCH
 def generate_charts_code(question, query, df):
@@ -36,7 +27,7 @@ def generate_charts_code(question, query, df):
     
 
     Output following this format:
-    {"code": "<insert code>", "description": "<insert description>"}
+    [{"code": "<insert code 1>", "description": "<insert description 1>"}, {"code": "<insert code 2>", "description": "<insert description 2>"}, ...]
     """
 
     client = OpenAI(
@@ -49,7 +40,7 @@ def generate_charts_code(question, query, df):
         messages=[
         {
             "role": "user",
-            "content": input_text
+            "content": "Tell me about Zurich"
         }
     ],
         top_p=None,
@@ -66,4 +57,11 @@ def generate_charts_code(question, query, df):
     for message in chat_completion:
         response += message.choices[0].delta.content
 
-    return response
+    try:
+        # Try to parse the response as JSON
+        parsed_response = json.loads(response)
+        return parsed_response
+    except json.JSONDecodeError:
+        # If parsing fails, log the error and return the raw response
+        print("Warning: Failed to parse response as JSON. Returning raw response.")
+        return response
