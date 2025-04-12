@@ -1,12 +1,8 @@
 import React, { useEffect,useState } from 'react';
 
 import { useLocation } from 'react-router-dom';
-import WorldMap from '../components/WorldMap';
-import Legend from '../components/Legend';
 
 import '../App.css';
-import '../styles/WorldMap.css'
-import '../styles/Legends.css'
 
 const PopupComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -80,8 +76,6 @@ const Home = () => {
           of potential areas for intervention in addressing malnutrition on a global scale.</p>
       </div>
       <div className='main-map-container'>
-        <WorldMap />
-        <Legend />
       </div>
       <PopupComponent />
     </div>
