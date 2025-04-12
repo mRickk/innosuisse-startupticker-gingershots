@@ -61,7 +61,6 @@ cursor.execute('''
         Company TEXT,
         "Gender CEO" TEXT,
         FOREIGN KEY (Company) REFERENCES company(Title)
-
     )
 ''')
 

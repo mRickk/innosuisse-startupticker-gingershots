@@ -6,12 +6,14 @@ import pandas as pd
 
 def create_schema():
     # Get the schema
-    db_path = "backend/my_database.db" 
+    db_path = "./my_database.db" 
     abs_path = os.path.abspath(db_path)
     db_engine = create_engine(f'sqlite:///{abs_path}')
 
     schema_engine = SchemaEngine(engine=db_engine, db_name="my_database")
     mschema = schema_engine.mschema
+    mschema.add_foreign_key("deal", "Company", None, "company", "Title")
+
     mschema_str = mschema.to_mschema()
 
     mschema_str = mschema_str.replace("main.", "")
