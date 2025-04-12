@@ -1,6 +1,6 @@
 import unittest
 from XiYanSQL import generate_sql
-from charts_code import generate_charts_code
+# from charts_code import generate_charts_code
 from db_utils import query_database
 
 class TestTextToSQL(unittest.TestCase):
@@ -43,5 +43,5 @@ if __name__ == "__main__":
     sql = generate_sql(question)
     df = query_database(sql)
     print(f"\nQuestion: {question}\nGenerated SQL: {sql}\nDataFrame: {df}")
-    charts_code = generate_charts_code(question, sql, df)
-    print(f"\nCharts Code: {charts_code}")
+    # charts_code = generate_charts_code(question, sql, df)
+    # print(f"\nCharts Code: {charts_code}")

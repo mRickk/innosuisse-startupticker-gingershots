@@ -70,6 +70,7 @@ cursor.execute('''
 df1.to_sql('company', conn, if_exists='append', index=False)
 df2.to_sql('deal', conn, if_exists='append', index=False)
 
+conn.close()
 
 ### Create world.db
 excel_file = './data/Data-crunchbase.xlsx'
@@ -87,8 +88,8 @@ conn.execute("PRAGMA foreign_keys = ON;")
 cursor = conn.cursor()
 
 # Drop tables if they exist
-cursor.execute("DROP TABLE IF EXISTS organizations")
 cursor.execute("DROP TABLE IF EXISTS funding_rounds")
+cursor.execute("DROP TABLE IF EXISTS organizations")
 
 # Create tables with primary and foreign keys
 

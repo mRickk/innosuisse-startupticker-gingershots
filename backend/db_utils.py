@@ -25,7 +25,11 @@ def create_schema():
 
     schema_engine = SchemaEngine(engine=db_engine, db_name=db_name)
     mschema = schema_engine.mschema
-    mschema.add_foreign_key("deal", "Company", None, "company", "Title")
+
+    if db_name == "swiss.db":
+        mschema.add_foreign_key("deal", "Company", None, "company", "Title")
+    else:
+        mschema.add_foreign_key("funding_rounds", "org_uuid", None, "organization", "uuid")
 
     mschema_str = mschema.to_mschema()
 
