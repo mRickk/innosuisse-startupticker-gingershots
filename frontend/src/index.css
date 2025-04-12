@@ -117,6 +117,31 @@ code {
   filter: drop-shadow(0 0 0.4rem #4202a3);
 }
 
+nav a {
+  position: relative;
+  text-decoration: none;
+
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 4px;
+  background-color: #ff0000;
+  transition: width 0.3s ease-in-out;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+nav a.selected::after {
+  width: 100%; 
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

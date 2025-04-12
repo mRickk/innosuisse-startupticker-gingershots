@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import './App.css';
 
@@ -21,16 +21,16 @@ function App() {
 
   return (
     <div className="app-container">
-      <main className="page-content">
         <Router>
-          <Navbar />
+        <Navbar />
+        <main className="grid grid-cols-[auto_80%_auto] py-36 justify-center">
           <Routes>
-            <Route path="/home" exact element={<Home />} />
-            <Route path="/search" exact element={<SearchEngine />} />
-            <Route path="/benchmark" exact element={<Benchmark />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/search" element={<SearchEngine />} />
+            <Route path="/benchmark" element={<Benchmark />} />
           </Routes>
+          </main>
         </Router>
-      </main>
     </div>
   );
 }
