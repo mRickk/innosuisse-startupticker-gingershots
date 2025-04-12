@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
 
-with open("hf_access_token.txt", 'r') as file:
+with open("hf/hf_access_token.txt", 'r') as file:
     token = file.read().strip()
 login(token=token)
 
