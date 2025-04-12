@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas as pd
+import scripts
 
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
@@ -18,6 +19,7 @@ DESCRIPTION = ""
 DATA_PATH: str = 'data/'
 URL_PREFIX: str = os.getenv("URL_PREFIX") or ""
 SERVER_ADDRESS: str = os.getenv("SERVER_ADDRESS") or ""
+scripts = None
 
 # *****************************************************************************
 #                  FastAPI entry point declaration
@@ -50,6 +52,7 @@ class NameYourBaselModel(BaseModel):
 
 
 async def startup_event():
+    scripts = scripts.Scripts()
     return None
 
 app.add_event_handler("startup", startup_event)
@@ -72,3 +75,12 @@ def info():
 #                  API Utility functions
 # ******************************************************************************
 
+@app.get("/api/search")
+def search(query: str):
+    """
+    Search for a query in the database and return the results.
+    """
+    sql = scripts.generate_sql(query)
+    df = scripts.query_database(sql)
+    charts_code = scripts.generate_charts_code(query, sql, df)
+    return JSONResponse(content={"sql": sql, "charts_code": charts_code})
