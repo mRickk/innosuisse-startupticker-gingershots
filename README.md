@@ -19,7 +19,7 @@ Natural language input that connects to a SQL database, transforming text into q
         ├── assets             
         ├── components         
         ├── helpers            
-        └── pages              
+        └── pages           
         
 ## Logic
 
@@ -34,3 +34,7 @@ The retrieved data, along with the original user prompt, is sent to the backend.
 
 4. Frontend Display & Additional Options:
 The generated dashboard is displayed on the React-based frontend. Simultaneously, users have the option to download the data and generate a one-page PDF report. This report offers tailored insights into market trends for startup founders and benchmarking data for investors, effectively providing a personalized Swiss startup radar.
+
+## Running the code
+
+To run the backend everything has to be done from the CLI, to run the front you may go to 'frontend/src/' and run 'nvm start'
