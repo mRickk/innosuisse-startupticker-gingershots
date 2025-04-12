@@ -24,5 +24,4 @@ def generate_charts_code(question, query, df):
     inputs = tokenizer(input_text, return_tensors="pt").cuda()
     outputs = model.generate(**inputs, max_length=128)
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    print(response)
     return response

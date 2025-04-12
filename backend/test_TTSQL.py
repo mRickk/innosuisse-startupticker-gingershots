@@ -42,4 +42,6 @@ if __name__ == "__main__":
     question = "List companies founded after 2018 that have received at least one investment"
     sql = generate_sql(question)
     df = query_database(sql)
-    generate_charts_code(question, sql, df)
+    print(f"\nQuestion: {question}\nGenerated SQL: {sql}\nDataFrame: {df}")
+    charts_code = generate_charts_code(question, sql, df)
+    print(f"\nCharts Code: {charts_code}")

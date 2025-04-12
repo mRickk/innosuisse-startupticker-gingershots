@@ -4,9 +4,18 @@ from schema_engine import SchemaEngine
 import sqlite3
 import pandas as pd
 
+db_path = ""
+
 def get_db_abs_path():
-    db_path = "./my_database.db" 
-    return os.path.abspath(db_path)
+    return db_path
+
+def set_db_abs_path(db_filename):
+    db_path = os.path.abspath(db_filename)
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"Database file {db_filename} not found.")
+    
+# TODO: instead of here the view must call the setter
+set_db_abs_path("swiss.db")
 
 def create_schema():
     # Get the schema
