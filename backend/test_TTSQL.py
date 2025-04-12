@@ -1,5 +1,7 @@
 import unittest
 from XiYanSQL import generate_sql
+from charts_code import generate_charts_code
+from db_utils import query_database
 
 class TestTextToSQL(unittest.TestCase):
 
@@ -36,4 +38,8 @@ class TestTextToSQL(unittest.TestCase):
         self.assertTrue("SELECT" in sql and "JOIN" in sql and "WHERE" in sql)
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
+    question = "List companies founded after 2018 that have received at least one investment"
+    sql = generate_sql(question)
+    df = query_database(sql)
+    generate_charts_code(question, sql, df)
