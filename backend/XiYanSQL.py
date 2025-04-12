@@ -31,28 +31,28 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 db_schema = create_schema()
 
 
-def generate_sql(self, question, dialect="MySQL", evidence=""):
+def generate_sql(question, dialect="MySQL", evidence=""):
     """Helper function to generate SQL from natural language question"""
     prompt = nl2sqlite_template_en.format(
         dialect=dialect, 
-        db_schema=self.db_schema, 
+        db_schema=db_schema, 
         question=question, 
         evidence=evidence
     )
     
     message = [{'role': 'user', 'content': prompt}]
-    text = self.tokenizer.apply_chat_template(
+    text = tokenizer.apply_chat_template(
         message,
         tokenize=False,
         add_generation_prompt=True
     )
     
-    model_inputs = self.tokenizer([text], return_tensors="pt").to(self.model.device)
+    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
     
-    generated_ids = self.model.generate(
+    generated_ids = model.generate(
         **model_inputs,
-        pad_token_id=self.tokenizer.pad_token_id,
-        eos_token_id=self.tokenizer.eos_token_id,
+        pad_token_id=tokenizer.pad_token_id,
+        eos_token_id=tokenizer.eos_token_id,
         max_new_tokens=1024,
         temperature=0.1,
         top_p=0.8,
@@ -63,4 +63,4 @@ def generate_sql(self, question, dialect="MySQL", evidence=""):
         output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
     ]
     
-    return self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
