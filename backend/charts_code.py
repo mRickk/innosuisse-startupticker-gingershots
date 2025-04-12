@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
+from openai import OpenAI
 
 with open("hf/hf_access_token.txt", 'r') as file:
     token = file.read().strip()
@@ -37,15 +38,32 @@ def generate_charts_code(question, query, df):
     Output following this format:
     {"code": "<insert code>", "description": "<insert description>"}
     """
-    # inputs = tokenizer(input_text, return_tensors="pt").cuda()
-    # outputs = model.generate(**inputs, max_length=128)
-    # response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    response = pipe(
-            input_text,
-            max_new_tokens=1000,        # Control the length of generated text
-            do_sample=True,            # Use sampling (more creative)
-            temperature=0.7,           # Control randomness (higher = more random)
-            top_p=0.9,                 # Nucleus sampling parameter
-            return_full_text=False     # Only return the generated text, not the prompt
-        )[0]['generated_text']
+
+    client = OpenAI(
+            base_url = "https://mjc2xhrx4nq9sqbo.us-east-1.aws.endpoints.huggingface.cloud/v1/",
+            api_key = "" # Replace with your actual API key
+        )
+
+    chat_completion = client.chat.completions.create(
+        model="tgi",
+        messages=[
+        {
+            "role": "user",
+            "content": input_text
+        }
+    ],
+        top_p=None,
+        temperature=None,
+        max_tokens=150,
+        stream=True,
+        seed=None,
+        stop=None,
+        frequency_penalty=None,
+        presence_penalty=None
+    )
+
+    response = ""
+    for message in chat_completion:
+        response += message.choices[0].delta.content
+
     return response
