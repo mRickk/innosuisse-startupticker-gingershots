@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine
 import os
 from schema_engine import SchemaEngine
+import sqlite3
+import pandas as pd
 
 def create_schema():
     # Get the schema
@@ -18,3 +20,15 @@ def create_schema():
     #mschema.save(f'./{"my_database"}.json')
     
     return mschema_str
+
+def query_database(query):
+    db_path="backend/my_database.db"
+    abs_path = os.path.abspath(db_path)
+    conn = sqlite3.connect(abs_path)
+    
+    try:
+        result_df = pd.read_sql(query, conn)
+        return result_df
+        
+    finally:
+        conn.close()

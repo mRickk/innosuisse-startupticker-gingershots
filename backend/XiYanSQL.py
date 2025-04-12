@@ -15,7 +15,7 @@ Please read and understand the database schema carefully, and generate an execut
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from schema_creation import create_schema
+from backend.db_utils import create_schema
 
 model_name = "XGenerationLab/XiYanSQL-QwenCoder-3B-2502"
 #model_name = "XGenerationLab/XiYanSQL-QwenCoder-7B-2502"
