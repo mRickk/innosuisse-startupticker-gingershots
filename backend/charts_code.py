@@ -10,7 +10,7 @@ login(token=token)
 # model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
 
 pipe = pipeline(
-    "Charts code generation using Charts.js and textual description generation",
+    "text-generation",
     model="meta-llama/Llama-3.2-3B", 
     torch_dtype=torch.bfloat16,
     device_map="auto"
