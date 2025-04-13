@@ -1,6 +1,5 @@
 # Personalised Trend Recoginition and Bernchmarking Tool
-## Talk to your data
-## Innosuisse & StartUpTicker
+## Innosuisse & StartUpTicker - Talk to your data
 
 Natural language input that connects to a SQL database, transforming text into queries to generate customized visuals based on the user’s needs. It also produces a one-pager report that provides insights into market trends for startup founders and benchmarking data for investors.
 
