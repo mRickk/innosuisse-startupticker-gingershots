@@ -40,13 +40,10 @@ const SearchEngine = () => {
     setSelectedRegion(region);
     try {
       // Send a request to the backend to update the database
-      const response = await fetch('/api/set-db', {
+      const response = await fetch(`/api/set-db?region=${encodeURIComponent(region)}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ region }),
       });
+      
   
       if (!response.ok) {
         throw new Error(`Failed to switch database: ${response.statusText}`);

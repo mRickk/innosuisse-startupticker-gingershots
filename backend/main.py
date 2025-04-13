@@ -1,7 +1,10 @@
 import os
 import logging
 import pandas as pd
-import scripts
+from XiYanSQL import generate_sql
+from charts_code import generate_charts_code
+from db_utils import query_database, set_db_abs_path
+
 
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
@@ -66,6 +69,7 @@ class NameYourBaselModel(BaseModel):
 
 
 async def startup_event():
+    # scripts = scripts.Scripts()
     return None
 
 app.add_event_handler("startup", startup_event)
@@ -95,9 +99,9 @@ def search(query: str):
     """
     Search for a query in the database and return the results.
     """
-    sql = scripts.generate_sql(query)
-    df = scripts.query_database(sql)
-    charts_code = scripts.generate_charts_code(query, sql, df)
+    sql = generate_sql(query)
+    df = query_database(sql)
+    charts_code = generate_charts_code(query, sql, df)
     return JSONResponse(content={"sql": sql, "charts_code": charts_code})
 
 
@@ -144,7 +148,6 @@ def upload_excel_world():
     except Exception as e:
         return f"Error: {e}"
     
-from db_utils import set_db_abs_path
 
 @app.post("/api/set-db")
 def set_database(region: str):
