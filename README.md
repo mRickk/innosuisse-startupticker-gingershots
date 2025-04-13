@@ -1,14 +1,15 @@
-# PERSONALISED TREND RECOGNITION AND BENCHMARKING TOOL 
-## Innosuisse & StartUpTicker
+# Personalised Trend Recoginition and Bernchmarking Tool
+## Innosuisse & StartUpTicker - Talk to your data
 
 Natural language input that connects to a SQL database, transforming text into queries to generate customized visuals based on the user’s needs. It also produces a one-pager report that provides insights into market trends for startup founders and benchmarking data for investors.
 
 ## Structure Overview
 
+```
 ├── backend
 │   ├── sql_creation         
 │   ├── schema_creation      
-│   ├── texttoquery_translation
+│   ├── text_to_query_translation
 │   └── data
 │       ├── crunchbase         
 │       └── startupticker      
@@ -19,8 +20,8 @@ Natural language input that connects to a SQL database, transforming text into q
         ├── assets             
         ├── components         
         ├── helpers            
-        └── pages           
-        
+        └── pages   
+```
 ## Logic
 
 1. Database Creation:
@@ -37,4 +38,4 @@ The generated dashboard is displayed on the React-based frontend. Simultaneously
 
 ## Running the code
 
-To run the backend everything has to be done from the CLI, to run the front you may go to 'frontend/src/' and run 'nvm start'
+To run the backend everything has to be done from the CLI, to run the front you may go to `frontend/src/` and run `nvm start`

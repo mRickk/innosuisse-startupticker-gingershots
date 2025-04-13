@@ -22,23 +22,31 @@ from fastapi import UploadFile, File, Form
 #                  Some global constants and variables
 # *****************************************************************************
 
-NAME = "aa"
+
+NAME = "InnoSuisse-StartupTicket"
 VERSION = '1.1.0'
-DESCRIPTION = ""
+DESCRIPTION = "SwissHacks 2025"
 DATA_PATH: str = 'data/'
 URL_PREFIX: str = os.getenv("URL_PREFIX") or ""
 SERVER_ADDRESS: str = os.getenv("SERVER_ADDRESS") or ""
 scripts = None
 
+
 # *****************************************************************************
 #                  FastAPI entry point declaration
 # *****************************************************************************
 
+
 app = FastAPI(title=NAME, version=VERSION,
               description=DESCRIPTION, openapi_url='/specification')
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"],
-                   allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 
 # *****************************************************************************
 #                  Set the logging for the service
@@ -66,6 +74,7 @@ async def startup_event():
 
 app.add_event_handler("startup", startup_event)
 
+
 # ******************************************************************************
 #                  API Route definition
 # ******************************************************************************
@@ -74,6 +83,7 @@ app.add_event_handler("startup", startup_event)
 @app.get("/")
 def info():
     return {'message': 'Welcome newcomer. Try out /showcase for the showcase and /docs for the doc.'}
+
 
 # ******************************************************************************
 #                  API Endpoints
@@ -84,7 +94,7 @@ def info():
 #                  API Utility functions
 # ******************************************************************************
 
-@app.post("/api/search")
+@app.get("/api/search")
 def search(query: str):
     """
     Search for a query in the database and return the results.
@@ -95,42 +105,45 @@ def search(query: str):
     return JSONResponse(content={"sql": sql, "charts_code": charts_code})
 
 
-@app.post("/data-swiss/")
+@app.get("/data-swiss/")
 def upload_excel_swiss():
     try:
-        excel_file = './data/Data-startupticker.xlsx'  
+        excel_file = './data/Data-startupticker.xlsx'
         abs_path = os.path.abspath(excel_file)
-        sheet1 = 'Companies'  
+        sheet1 = 'Companies'
         sheet2 = 'Deals'
 
         df1 = pd.read_excel(abs_path, sheet_name=sheet1)
         df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 
         df1 = df1.drop_duplicates(subset="Title", keep="first")
-        df = pd.merge(df1, df2, how='right', left_on='Title', right_on='Company')
+        df = pd.merge(df1, df2, how='right',
+                      left_on='Title', right_on='Company')
 
-        df = json.loads(df.to_json(orient='records',indent=4))
-        
+        df = json.loads(df.to_json(orient='records', indent=4))
+
         return df
     except Exception as e:
         return f"Error: {e}"
 
-@app.post("/data-world/")
+
+@app.get("/data-world/")
 def upload_excel_world():
     try:
-        excel_file = './data/Data-crunchbase.xlsx'  
+        excel_file = './data/Data-crunchbase.xlsx'
         abs_path = os.path.abspath(excel_file)
-        sheet1 = 'organizations'  
+        sheet1 = 'organizations'
         sheet2 = 'funding rounds'
 
         df1 = pd.read_excel(abs_path, sheet_name=sheet1)
         df2 = pd.read_excel(abs_path, sheet_name=sheet2)
 
         df1 = df1.drop_duplicates(subset="uuid", keep="first")
-        df = pd.merge(df1, df2, how='right', left_on='uuid', right_on='org_uuid')
+        df = pd.merge(df1, df2, how='right',
+                      left_on='uuid', right_on='org_uuid')
 
-        df = json.loads(df.to_json(orient='records',indent=4))
-        
+        df = json.loads(df.to_json(orient='records', indent=4))
+
         return df
     except Exception as e:
         return f"Error: {e}"
