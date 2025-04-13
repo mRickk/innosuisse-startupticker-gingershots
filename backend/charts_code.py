@@ -28,49 +28,40 @@ def generate_charts_code(question, query, df):
     - Clear structure: Each chart must follow the structure provided in the dummy React example below.
 
     Example format (dummy example):
-
-    const barData = {{
-        labels: ['Page A', 'Page B', 'Page C', 'Page D', 'Page E'],
-        datasets: [
-            {{
-                label: 'Visits',
-                data: [4000, 3000, 2000, 2780, 1890],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-            }},
-        ],
-    }};
-
+        
     <div className="bg-white border-2 border-gray-100 rounded-lg p-4 mb-10">
         <h5 className="text-lg font-medium text-gray-800 mb-4">Pending Transactions</h5>
-        <Bar data={{barData}}/>
+        <Bar data={{{{
+            labels: ['Page A', 'Page B', 'Page C', 'Page D', 'Page E'],
+            datasets: [
+                {{
+                    label: 'Visits',
+                    data: [4000, 3000, 2000, 2780, 1890],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                }},
+            ],
+        }}}} />
     </div>
 
     Your response must:
 
-    - Include clearly labeled JavaScript declaration code (declaration_code).
-    - Include the JSX/React chart component code (chart_code).
+    - Include the JSX/React chart component code (code).
     - Provide a concise, insightful description (description) of each chart, clearly explaining what it visually represents and why this chart type was chosen for the given data.
 
     Response format (strictly adhere to this JSON structure):
 
-    [
-        {{"declaration_code": "<JavaScript declaration code for chart 1>",
-        "chart_code": "<React JSX component code for chart 1>",
+    [{{"code": "<React JSX component code for chart 1>",
         "description": "<Concise description of chart 1>"}},
 
-        {{"declaration_code": "<JavaScript declaration code for chart 2>",
-        "chart_code": "<React JSX component code for chart 2>",
+        {{"code": "<React JSX component code for chart 2>",
         "description": "<Concise description of chart 2>"}},
 
-        {{"declaration_code": "<JavaScript declaration code for chart 3>",
-        "chart_code": "<React JSX component code for chart 3>",
-        "description": "<Concise description of chart 3>"}}
-    ]
+        {{"code": "<React JSX component code for chart 3>",
+        "description": "<Concise description of chart 3>"}}]
 
-    Ensure the output is ENTIRELY directly executable, can be parsed as a JSON, visually appealing, and clearly explains each visualization's purpose and insights derived from the DataFrame data."""
-
+    The output is MUST BE parsed as a JSON, visually appealing, and clearly explains each visualization's purpose and insights derived from the DataFrame data."""
 
 
 
@@ -104,7 +95,13 @@ def generate_charts_code(question, query, df):
     response = response.split("</think>")[1]
     response = response.replace("'''","")
     response = response.replace("json","")
+    response = response.replace("```","")
 
+    print(response)
+    if "[{" in response:
+        response = response.split("[{", 1)[-1]
+    if "}]" in response:
+        response = response.rsplit("}]", 1)[0] + "}]"
     
     try:
         # Try to parse the response as JSON

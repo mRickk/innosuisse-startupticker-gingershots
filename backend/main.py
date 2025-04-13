@@ -42,7 +42,8 @@ app = FastAPI(title=NAME, version=VERSION,
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000",
+                   "*"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
@@ -94,16 +95,20 @@ def info():
 #                  API Utility functions
 # ******************************************************************************
 
-@app.get("/api/search")
+@app.post("/api/search")
 def search(query: str):
     """
     Search for a query in the database and return the results.
     """
+    query = query.replace('_', ' ')
     sql = generate_sql(query)
     df = query_database(sql)
     charts_code = generate_charts_code(query, sql, df)
-    return JSONResponse(content={"sql": sql, "charts_code": charts_code})
 
+    return JSONResponse(content={
+        "sql": sql,
+        "result": charts_code,
+    })
 
 @app.get("/data-swiss/")
 def upload_excel_swiss():

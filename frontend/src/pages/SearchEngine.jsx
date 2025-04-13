@@ -2,7 +2,8 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import * as Babel from '@babel/standalone'
-import { Bubble, Pie, Bar } from 'react-chartjs-2';
+import { Bubble, Pie, Bar} from 'react-chartjs-2';
+
 
 const compileJSX = (jsxCode) => {
   try {
@@ -35,13 +36,15 @@ const SearchEngine = () => {
   const [results, setResults] = React.useState([])
   const [loading, setLoading] = React.useState(false)
   const [selectedRegion, setSelectedRegion] = React.useState('Switzerland'); // Default selection
+  const url = "http://localhost:8000"
 
   const handleRegionChange = async (region) => {
     setSelectedRegion(region);
     try {
       // Send a request to the backend to update the database
-      const response = await fetch(`/api/set-db?region=${encodeURIComponent(region)}`, {
+      const response = await fetch(url + `/api/set-db?region=${encodeURIComponent(region)}`, {
         method: 'POST',
+        mode: 'no-cors',
       });
       
   
@@ -60,13 +63,14 @@ const SearchEngine = () => {
   //   if (!query.trim()) return
   //   try {
   //     setLoading(true)
-  //     const response = await fetch('/api/search', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ query }),
-  //     })
+  //     const tempQuery = query.replace(/ /g, '_');
+  //     const response = await fetch(url + `/api/search?query=${encodeURIComponent(tempQuery)}`, {
+  //       method: 'POST'
+  //     });
   //     const data = await response.json()
-  //     setResults(data.results)
+  //     console.log('Search results:', data.result)
+
+  //     setResults(JSON.parse(JSON.stringify(data.result)))
   //   } catch (error) {
   //     console.error('Search failed:', error)
   //   } finally {
@@ -76,7 +80,7 @@ const SearchEngine = () => {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-    try {
+    try { 
       setLoading(true);
       setResults([]); // Clear previous results
       // Dummy data instead of fetching from an API
@@ -90,9 +94,24 @@ const SearchEngine = () => {
     }
   };
   
+  const handleDownloadJSON = () => {
+    const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'search-results.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadReport = () => {
+    window.print(); // Simple built-in browser print/export
+    // Or integrate `html2pdf.js` for a PDF export.
+  };
+
   return (
     <div className="p-6 max-w-3xl mx-auto mt-20">
-      {/* Dropdown for region selection */}
+      {/* Dropdown */}
       <div className="mb-6">
         <label htmlFor="region-select" className="block text-sm font-medium text-gray-700 mb-2">
           Select Region:
@@ -107,28 +126,27 @@ const SearchEngine = () => {
           <option value="World">World</option>
         </select>
       </div>
+
+      {/* Search Input + Button */}
       <div className="flex gap-2 mb-6">
         <input
           type="text"
           placeholder="Enter your prompt..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 px-4 py-2 text-sm text-[#1F2937] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1F2937] focus:border-transparent "
+          className="flex-1 px-4 py-2 text-sm text-[#1F2937] border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1F2937]"
         />
         <button 
-          onClick={() => handleSearch()}
+          onClick={handleSearch}
           disabled={loading}
           className={`flex items-center justify-center px-4 py-2 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#1F2937] disabled:opacity-50 ${
             loading ? 'bg-[#E90A32]' : 'bg-[#1F2937] hover:bg-opacity-80'
           }`}
-          style={{
-            transition: 'background-color 0.3s ease-out',
-          }}
         >
           {loading ? (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
           ) : (
             <Search className="w-4 h-4" />
@@ -136,6 +154,24 @@ const SearchEngine = () => {
         </button>
       </div>
 
+      {results.length > 0 && (
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={handleDownloadReport}
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Download Report
+          </button>
+          <button
+            onClick={handleDownloadJSON}
+            className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Download Data
+          </button>
+        </div>
+      )}
+
+      {/* Results */}
       <div className="space-y-6 mt-5">
         {results.map((item, index) => (
           <motion.div
@@ -147,7 +183,6 @@ const SearchEngine = () => {
             <div className="bg-white shadow-lg rounded-2xl p-4 border-2 border-gray-100">
               <div className="p-4">
                 <p className="text-sm text-gray-500 mb-2">{item.description}</p>
-                {/* PROBLEMATIC PART */}
                 <div className="mt-2">
                   {React.createElement(compileJSX(item.code))}
                 </div>
@@ -157,39 +192,14 @@ const SearchEngine = () => {
         ))}
       </div>
 
-      {/* <div className="space-y-6 mt-20">
-        {results.map((item, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            <div className="bg-white shadow-xl rounded-2xl p-4">
-              <div className="p-4">
-                <p className="text-sm text-gray-500 mb-2">{item.description}</p>
-                <div
-                  className="bg-gray-100 p-3 rounded text-sm overflow-x-auto"
-                  dangerouslySetInnerHTML={{ __html: item.chart_code }}
-                />
-                <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto mt-4">
-                  <code>{item.declaration_code}</code>
-                </pre>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div> */}
-
-
-      
+      {/* No Results */}
       {query.trim() && results.length === 0 && !loading && (
         <div className="text-center p-8 text-gray-500">
           No results found. Try modifying your search.
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default SearchEngine
+export default SearchEngine;
