@@ -39,7 +39,9 @@ The generated dashboard is displayed on the React-based frontend. Simultaneously
 ## Running the code
 
 First, make sure to make sure to `pip install -r requirements.txt`.
+
 To run the backend everything has to be done from the CLI (don't worry about this), to run the front you shall go to `frontend/src/` and run `nvm start`.
+
 You will be prompeted with a text box to get your prompt, once the prompt has been executed you will see 2 tabs: the benchmark which includes charts about general information and the search engine which includes your customised charts, you will have the option to download the dataset you asked for in a CSV file and a 1-pager report in a PDF file.
 
 ## Example Screenshots
