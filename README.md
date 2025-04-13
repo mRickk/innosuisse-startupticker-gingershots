@@ -5,7 +5,8 @@ Natural language input that connects to a SQL database, transforming text into q
 
 ## Structure Overview
 
-```├── backend
+```
+├── backend
 │   ├── sql_creation         
 │   ├── schema_creation      
 │   ├── texttoquery_translation
@@ -19,7 +20,7 @@ Natural language input that connects to a SQL database, transforming text into q
         ├── assets             
         ├── components         
         ├── helpers            
-        └── pages 
+        └── pages   
 ```
 ## Logic
 
