@@ -40,6 +40,6 @@ if __name__ == "__main__":
     question = "What is the total funding amount by canton?"
     sql = generate_sql(question)
     df = query_database(sql)
-    print(f"\nQuestion: {question}\nGenerated SQL: {sql}\nDataFrame: {df}")
-    charts_code = generate_charts_code(question, sql, df)
+    charts_code = generate_charts_code(question, sql, df)    
+
     print(f"\nCharts Code: {charts_code}")

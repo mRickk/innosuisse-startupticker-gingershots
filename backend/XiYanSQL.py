@@ -1,3 +1,12 @@
+from db_utils import create_schema
+from openai import OpenAI
+from huggingface_hub import login
+
+
+with open("hf/hf_access_token.txt", 'r') as file:
+    token = file.read().strip()
+login(token=token)
+
 
 nl2sqlite_template_en = """You are now a {dialect} data analyst, and you are given a database schema as follows:
 
@@ -13,26 +22,10 @@ nl2sqlite_template_en = """You are now a {dialect} data analyst, and you are giv
 Please read and understand the database schema carefully, and generate an executable SQL based on the user's question and evidence. The generated SQL is protected by ```sql and ```.
 """
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from db_utils import create_schema
-
-model_name = "XGenerationLab/XiYanSQL-QwenCoder-3B-2502"
-#model_name = "XGenerationLab/XiYanSQL-QwenCoder-7B-2502"
-#model_name = "XGenerationLab/XiYanSQL-QwenCoder-14B-2502"
-#model_name = "XGenerationLab/XiYanSQL-QwenCoder-32B-2412"
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
 db_schema = create_schema()
 
-
-def generate_sql(question, dialect="MySQL", evidence=""):
-    """Helper function to generate SQL from natural language question"""
+def generate_sql(question, dialect="MySQL", evidence=""):    
+    
     prompt = nl2sqlite_template_en.format(
         dialect=dialect, 
         db_schema=db_schema, 
@@ -40,27 +33,32 @@ def generate_sql(question, dialect="MySQL", evidence=""):
         evidence=evidence
     )
     
-    message = [{'role': 'user', 'content': prompt}]
-    text = tokenizer.apply_chat_template(
-        message,
-        tokenize=False,
-        add_generation_prompt=True
+    
+    client = OpenAI(
+		base_url = "https://u75p7n4mm8gm8bj8.us-east-1.aws.endpoints.huggingface.cloud/v1/",
+		api_key = token
+	)
+
+    chat_completion = client.chat.completions.create(
+        model="tgi",
+        messages=[
+        {
+            "role": "user",
+            "content": prompt
+        }
+    ],
+        top_p=None,
+        temperature=None,
+        max_tokens=300,
+        stream=True,
+        seed=None,
+        stop=None,
+        frequency_penalty=None,
+        presence_penalty=None
     )
-    
-    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
-    
-    generated_ids = model.generate(
-        **model_inputs,
-        pad_token_id=tokenizer.pad_token_id,
-        eos_token_id=tokenizer.eos_token_id,
-        max_new_tokens=1024,
-        temperature=0.1,
-        top_p=0.8,
-        do_sample=True,
-    )
-    
-    generated_ids = [
-        output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
-    ]
-    
-    return tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+    response = ""
+    for message in chat_completion:
+        response += message.choices[0].delta.content
+
+    return response

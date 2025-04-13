@@ -1,49 +1,116 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 from huggingface_hub import login
+from openai import OpenAI
+import json
 
+token = ""
 with open("hf/hf_access_token.txt", 'r') as file:
     token = file.read().strip()
-login(token=token)
+    login(token=token)
 
-# tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True)
-# model = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-1.3b-base", trust_remote_code=True).cuda()
-
-pipe = pipeline(
-    "text-generation",
-    model="meta-llama/Llama-3.2-3B", 
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
-
+# THIS FUNCTION WILL BE CHANGED IN THE API BRANCH
 def generate_charts_code(question, query, df):
-    input_text = """You are a data analyst.
-    You are given the original user question, the corresponding database query and a Pandas dataframe of the retrieved data.
-    Starting from the dataframe data, write JavaScript code using Charts.js to generate interactive charts (multiple if needed) that are relevant to the data.
-    Do not put dependencies, just write the code that can be run directly inside another web application.
-    Then give a short description of the charts you created and what they represent.
+    df = df.to_string()
 
-    【Question】
-    {question}
 
-    【Query】
-    {query}
+    input_text = f"""You are a data analyst tasked with creating interactive visualizations.
 
-    【Dataframe】
-    {df}
+    You are provided with:
+    - An original user question ({question})
+    - The corresponding database query ({query})
+    - A Pandas DataFrame containing the retrieved data ({df})
 
-    Output following this format:
-    {"code": "<insert code>", "description": "<insert description>"}
-    """
-    # inputs = tokenizer(input_text, return_tensors="pt").cuda()
-    # outputs = model.generate(**inputs, max_length=128)
-    # response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    response = pipe(
-            input_text,
-            max_new_tokens=1000,        # Control the length of generated text
-            do_sample=True,            # Use sampling (more creative)
-            temperature=0.7,           # Control randomness (higher = more random)
-            top_p=0.9,                 # Nucleus sampling parameter
-            return_full_text=False     # Only return the generated text, not the prompt
-        )[0]['generated_text']
-    return response
+    Using this DataFrame, write JavaScript code utilizing Chart.js to generate visually appealing, interactive charts. Follow these guidelines strictly:
+
+    - No dependencies: Write clean, executable JavaScript code ready to be integrated directly into a React web application without additional setup.
+    - Provide exactly three charts: Select only the three most promising chart types that best represent the provided data from options such as bar plot, bubble chart, pie chart, maps, heat map matrices, line charts, radar charts, scatter plots, etc.
+    - Clear structure: Each chart must follow the structure provided in the dummy React example below.
+
+    Example format (dummy example):
+
+    const barData = {{
+        labels: ['Page A', 'Page B', 'Page C', 'Page D', 'Page E'],
+        datasets: [
+            {{
+                label: 'Visits',
+                data: [4000, 3000, 2000, 2780, 1890],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            }},
+        ],
+    }};
+
+    <div className="bg-white border-2 border-gray-100 rounded-lg p-4 mb-10">
+        <h5 className="text-lg font-medium text-gray-800 mb-4">Pending Transactions</h5>
+        <Bar data={{barData}}/>
+    </div>
+
+    Your response must:
+
+    - Include clearly labeled JavaScript declaration code (declaration_code).
+    - Include the JSX/React chart component code (chart_code).
+    - Provide a concise, insightful description (description) of each chart, clearly explaining what it visually represents and why this chart type was chosen for the given data.
+
+    Response format (strictly adhere to this JSON structure):
+
+    [
+        {{"declaration_code": "<JavaScript declaration code for chart 1>",
+        "chart_code": "<React JSX component code for chart 1>",
+        "description": "<Concise description of chart 1>"}},
+
+        {{"declaration_code": "<JavaScript declaration code for chart 2>",
+        "chart_code": "<React JSX component code for chart 2>",
+        "description": "<Concise description of chart 2>"}},
+
+        {{"declaration_code": "<JavaScript declaration code for chart 3>",
+        "chart_code": "<React JSX component code for chart 3>",
+        "description": "<Concise description of chart 3>"}}
+    ]
+
+    Ensure the output is ENTIRELY directly executable, can be parsed as a JSON, visually appealing, and clearly explains each visualization's purpose and insights derived from the DataFrame data."""
+
+
+
+
+    client = OpenAI(
+            base_url = "https://s504xedw0gl21xfx.us-east-1.aws.endpoints.huggingface.cloud/v1/",
+            api_key = token # Replace with your actual API key
+        )
+
+    chat_completion = client.chat.completions.create(
+        model="tgi",
+        messages=[
+        {
+            "role": "user",
+            "content": input_text
+        }
+    ],
+        top_p=None,
+        temperature=None,
+        max_tokens=10000,
+        stream=True,
+        seed=None,
+        stop=None,
+        frequency_penalty=None,
+        presence_penalty=None
+    )
+
+    response = ""
+    for message in chat_completion:
+        response += message.choices[0].delta.content
+
+    response = response.split("</think>")[1]
+    response = response.replace("'''","")
+    response = response.replace("json","")
+
+    
+    try:
+        # Try to parse the response as JSON
+        parsed_response = json.loads(response)
+        return parsed_response
+    except json.JSONDecodeError:
+        # If parsing fails, log the error and return the raw response
+        print("Warning: Failed to parse response as JSON. Returning raw response.")
+        return response

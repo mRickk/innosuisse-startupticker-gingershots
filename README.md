@@ -1,89 +1,40 @@
-# INNOSUISSE & STARTUPTICKER
-# Empowering Swiss start-ups and investors with AI-driven data insights
+# PERSONALISED TREND RECOGNITION AND BENCHMARKING TOOL 
+## Innosuisse & StartUpTicker
 
-Startupticker has a large, reliable data set on Swiss startups. This data is only used for reports and is otherwise not available. We see huge untapped potential in making this data available to start-ups, investors and support organisations. It would be ideal for creating more transparency in the ecosystem. There is also great potential for semantic search.
+Natural language input that connects to a SQL database, transforming text into queries to generate customized visuals based on the user’s needs. It also produces a one-pager report that provides insights into market trends for startup founders and benchmarking data for investors.
 
-* Use case 1: Recognising trends
-Recognising trends with semantic search: Investors and startups want to know how a sector or vertical has developed, for example to recognise whether there are signs of a recovery in investments or whether rising valuations or a wave of startups looking for investors can be expected
+## Structure Overview
 
-* Use case 2: Benchmarking
-Investors and support organisations want to know whether the startups in their portfolio are performing better or worse than average. As all other content by Startupticker, the analyses will be offered for free.
+├── backend
+│   ├── sql_creation         
+│   ├── schema_creation      
+│   ├── texttoquery_translation
+│   └── data
+│       ├── crunchbase         
+│       └── startupticker      
+└── frontend
+    ├── public                 
+    └── src
+        ├── theme              
+        ├── assets             
+        ├── components         
+        ├── helpers            
+        └── pages           
+        
+## Logic
 
-## Expected Outcome:
+1. Database Creation:
+The process starts by constructing an SQL database. We combine data from various Excel sheets (joining multiple pages) to build a unified and structured database.
 
-There are two possibilities: 
-Recognising trends with semantic search 
-Ontology instead of standard classification for the three data sets
-Step 1: create a model to organise descriptors/tags 
-Step 2: develop algorithms able to hat capture them 
+2. User Query Input:
+On the frontend, users enter a natural language prompt. This input is then translated into an SQL query using an open-source LLM (LLama), which retrieves the corresponding data from our SQL database.
 
-Benchmarking
-Dashboard on the Startupticker website for users to perform simple analyses
+3. Data Processing & Dashboard Generation:
+The retrieved data, along with the original user prompt, is sent to the backend. Here, another state-of-the-art open-source LLM (Deepsek) processes the information and generates a JSON file. This file contains all the necessary code to render a personalized dashboard for the specific query.
 
-Format: 
-* Presentation with slides and short live demo if possible
-Key elements:
-* Concept, functionality, examples, description of the necessary work up to the finished product
-Requirements:
-* The prototype is far more relevant than the presentation itself
+4. Frontend Display & Additional Options:
+The generated dashboard is displayed on the React-based frontend. Simultaneously, users have the option to download the data and generate a one-page PDF report. This report offers tailored insights into market trends for startup founders and benchmarking data for investors, effectively providing a personalized Swiss startup radar.
 
+## Running the code
 
-## Data:
-The Startupticker database includes data of more than 5000 Swiss start-ups. The datasets include Founding year, sector, canton, website. In addition, we have a comprehensive database of transactions since 2012 which includes funding rounds, acquisitions and liquidations.
-We will provide the database in an excel file.
-
-
-
-## The Pitch:
-[SwissHacksStartuptickerPitch.pdf](https://github.com/user-attachments/files/19607111/SwissHacksStartuptickerPitch.pdf)
-
-## Deep Dive Slides:
-
-[SwissHacksStartuptickerV3.pdf](https://github.com/user-attachments/files/19549003/SwissHacksStartuptickerV3.pdf)
-
-## Further Information:
-
-Add further information
-
-## Resources:
-
-### Startupticker
-
-[Data-startupticker.xlsx](https://github.com/user-attachments/files/19537050/Data-startupticker.xlsx)
- contains the database from startupticker and a short description about the fields. There are 5213 companies and 3902 deals. 
-
-### Crunchbase
-
-[Data-crunchbase.xlsx](https://github.com/user-attachments/files/19537056/Data-crunchbase.xlsx)
- contains a selection of the database from crunchbase and a short description about the fields. There are 10'000 organizations and 10'956 funding rounds. You find a full data dictionary here: [full_data_dictionary_crunchbase.pdf](https://github.com/user-attachments/files/19537062/full_data_dictionary_crunchbase.pdf).
-
-For more information about the data, turn to the crunchbase documentation: https://data.crunchbase.com/docs/getting-started. 
-
-### Swiss Official Gazette of Commerce
-
-The Swiss Official Gazette of Commerce (SOGC) is a public database containing information about legal form, ownership and management of the companies and legal entities registered there. It can be accessed here: https://www.shab.ch/#!/search/publications. This database can be useful for information such as the names of the founders, citizenships of the founders and official liquidations, current residence address and changes to the corporate structure of companies. 
-
-Due to a change of the database on the 02. September 2018, the archive has to be visited for information prior to this date. This can be accessed here: https://www.shab.ch/#!/search/archive.
-
-Here you find more information about how to use it: [How to use the SOGC.pdf](https://github.com/user-attachments/files/19537068/How.to.use.the.SOGC.pdf).
-
-## Judging Criteria:
-
-* Visual design (10%)
-The design must make it possible for non-experts to use the interface. 
-* Feasibility (40%) 
-As Startupticker is a small organisation with very limited resources, it is important that the solution does not require large resources for implementation or operation. ..
-* Reachability (50%)
-The closer the solution is to a usable product, the better.
-
-
-## Point of Contact:
-
-* Stefan Kyora, Editor in Chief, Startupticker
-* Ritah Nyakato, Duty Editor, Startupticker
-* Benjamin Klavins, Data Analyst, Startupticker
-
-
-## Price - the winning team members will each receive:
-
-Introduction to the Swiss start-up ecosystem and hands-on tips if winner is interested in starting a company or working with a start-up.
+To run the backend everything has to be done from the CLI, to run the front you may go to 'frontend/src/' and run 'nvm start'
