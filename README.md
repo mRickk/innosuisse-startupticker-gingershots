@@ -5,22 +5,22 @@ Natural language input that connects to a SQL database, transforming text into q
 
 ## Structure Overview
 
-backend/
-├── sql_creation/
-├── schema_creation/
-├── texttoquery_translation/
-└── data/
-├── crunchbase/
-└── startupticker/
-frontend/
-├── public/
-└── src/
-├── theme/
-├── assets/
-├── components/
-├── helpers/
-└── pages/
-        
+```├── backend
+│   ├── sql_creation         
+│   ├── schema_creation      
+│   ├── texttoquery_translation
+│   └── data
+│       ├── crunchbase         
+│       └── startupticker      
+└── frontend
+    ├── public                 
+    └── src
+        ├── theme              
+        ├── assets             
+        ├── components         
+        ├── helpers            
+        └── pages 
+
 ## Logic
 
 1. Database Creation:
