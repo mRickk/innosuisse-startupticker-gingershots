@@ -39,6 +39,12 @@ ChartJS.register(
 );
 
 const Benchmark = () => {
+
+    const [user, setUser] = React.useState('');
+    const [userName, setUserName] = React.useState('');
+    const chartRefs = useRef([]);
+
+
     const fetchData = async (endpoint) => {
         try {
             const response = await fetch(`http://localhost:8000/${endpoint}/`);
@@ -55,27 +61,41 @@ const Benchmark = () => {
     };
 
     const [swissData, setSwissData] = useState(null);
-
-    const [globalData, setGlobalData] = useState(null)
+    const [globalData, setGlobalData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetchData("data-swiss").then(data => {
-            if (data) setSwissData(data);
-        });
-        fetchData("data-world").then(data => {
-            if (data) setGlobalData(data);
-        });
+        const fetchDataAsync = async () => {
+            const swissDataResponse = await fetchData("data-swiss");
+            const globalDataResponse = await fetchData("data-world");
+
+            setSwissData(swissDataResponse);
+            setGlobalData(globalDataResponse);
+
+            setIsLoading(false);
+        };
+
+        fetchDataAsync();
     }, []);
 
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-black border-t-transparent"></div>
+        </div>
+    }
 
-    const heatmap = {};
-    swissData.forEach(row => {
-        const industry = row.Industry || 'Unknown';
-        const canton = row.Canton || 'Unknown';
+    // Method
+    /*const heatmap = {};
 
-        const key = `${industry}-${canton}`;
-        heatmap[key] = (heatmap[key] || 0) + row.Amount;
-    });
+    if (Array.isArray(swissData)) {
+        swissData.forEach(row => {
+            const industry = row.Industry || 'Unknown';
+            const canton = row.Canton_x || 'Unknown';
+
+            const key = `${industry}-${canton}`;
+            heatmap[key] = (heatmap[key] || 0) + row.Amount;
+        });
+    }
 
     const chartData = Object.entries(heatmap).map(([key, value]) => {
         const [sector, canton] = key.split('-');
@@ -88,20 +108,63 @@ const Benchmark = () => {
             {
                 label: 'Investments',
                 data: chartData.map(item => item.value),
-                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc',
+                backgroundColor: [
+                    '#4f46e5', '#6366f1', '#818cf8', '#a5b4fc',
                     '#f472b6', '#f9a8d4', '#fcb0b1', '#fcd34d',
                     '#22c55e', '#34d399', '#10b981', '#16a34a',
-                    '#f97316', '#fb923c', '#f59e0b', '#fbbf24',],
+                    '#f97316', '#fb923c', '#f59e0b', '#fbbf24',
+                ],
+            },
+        ],
+    };*/
+
+    const heatmapData = {
+        labels: ['FinTech (ZH)', 'HealthTech (VD)', 'E-Com (GE)', 'AI (TI)'],
+        datasets: [
+            {
+                label: 'Investments',
+                data: [12, 8, 5, 10],
+                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc'],
             },
         ],
     };
-    /*
-        investorPortfolio = swissData.filter(row => row.Investors.includes(investorName));
-        const valuationTimeline = investorPortfolio.map(row => ({
-            date: new Date(row['Date of the funding round']),
-            valuation: row.Valuation
-        })).sort((a, b) => a.date - b.date);
-    */
+
+    // Method
+    const investorPortfolio = Array.isArray(swissData)
+        ? swissData.filter(row => row.Investors?.includes(userName))
+        : [];
+
+    const valuationTimeline = Array.isArray(investorPortfolio)
+        ? investorPortfolio
+            .filter(row => row.Valuation && row['Date of the funding round'])
+            .map(row => ({
+                year: new Date(row['Date of the funding round']).getFullYear(),
+                valuation: row.Valuation
+            }))
+        : [];
+
+    const valuationByYear = {};
+
+    valuationTimeline.forEach(entry => {
+        if (!valuationByYear[entry.year]) valuationByYear[entry.year] = 0;
+        valuationByYear[entry.year] += entry.valuation;
+    });
+
+    const sortedYears = Object.keys(valuationByYear).sort();
+    /*const roiData = {
+        labels: sortedYears,
+        datasets: [
+            {
+                label: 'Portfolio Valuation (M)',
+                data: sortedYears.map(year => valuationByYear[year]),
+                borderColor: '#4f46e5',
+                fill: true,
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                tension: 0.4,
+            },
+        ],
+    };*/
+
     const roiData = {
         labels: ['2020', '2021', '2022', '2023', '2024'],
         datasets: [
@@ -115,49 +178,86 @@ const Benchmark = () => {
             },
         ],
     };
-    const investments = swissData.map(row => ({
-        company: row.Company,
-        valuation: row.Valuation,
-        amount: row.Amount,
-        growth: row.Valuation / row.Amount
-    }));
 
-    const topPerformers = investments
-        .sort((a, b) => b.growth - a.growth)
-        .slice(0, 10);
+    // Method
+    const investments = Array.isArray(swissData)
+        ? swissData.map(row => ({
+            company: row.Company,
+            valuation: row.Valuation,
+            amount: row.Amount,
+            growth: row.Valuation / row.Amount
+        }))
+        : [];
 
-    const topBarData = {
-        labels: topPerformers.map(p => p.company),
+    const topPerformers = Array.isArray(investments)
+        ? investments
+            .sort((a, b) => b.growth - a.growth)
+            .slice(0, 10)
+        : [];
+
+    /*const topBarData = {
+        labels: Array.isArray(topPerformers) ? topPerformers.map(p => p.company) : [],
         datasets: [
             {
                 label: 'Valuation Growth (x)',
-                data: topPerformers.map(p => p.growth.toFixed(2)),
-                backgroundColor: topPerformers.map((_, i) => `hsl(${i * 36}, 70%, 60%)`),
+                data: Array.isArray(topPerformers) ? topPerformers.map(p => p.growth.toFixed(2)) : [],
+                backgroundColor: Array.isArray(topPerformers)
+                    ? topPerformers.map((_, i) => `hsl(${i * 36}, 70%, 60%)`)
+                    : [],
+            },
+        ],
+    };
+*/
+
+    const topBarData = {
+        labels: ['Startup A', 'Startup B', 'Startup C'],
+        datasets: [
+            {
+                label: 'Valuation Growth (x)',
+                data: [3.2, 2.8, 2.5],
+                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8'],
             },
         ],
     };
 
+    // Method
+    const dealsByMonth = Array.isArray(swissData) ? {} : {};
 
-    const dealsByMonth = {};
-
-    swissData.forEach(row => {
+    Array.isArray(swissData) && swissData.forEach(row => {
         const date = new Date(row['Date of the funding round']);
         const month = `${date.getFullYear()}-${date.getMonth() + 1}`;
         dealsByMonth[month] = (dealsByMonth[month] || 0) + 1;
     });
 
-    const dealsByYear = Object.entries(dealsByMonth).reduce((acc, [month, count]) => {
-        const year = month.split('-')[0];
-        acc[year] = (acc[year] || 0) + count;
-        return acc;
-    }, {});
+    const dealsByYear = Array.isArray(dealsByMonth)
+        ? Object.entries(dealsByMonth).reduce((acc, [month, count]) => {
+            const year = month.split('-')[0];
+            acc[year] = (acc[year] || 0) + count;
+            return acc;
+        }, {})
+        : {};
 
-    const timelineData = {
-        labels: Object.keys(dealsByYear).sort(),
+    /*const timelineData = {
+        labels: Array.isArray(dealsByYear) ? Object.keys(dealsByYear).sort() : [],
         datasets: [
             {
                 label: 'Deals Per Year',
-                data: Object.values(dealsByYear),
+                data: Array.isArray(dealsByYear) ? Object.values(dealsByYear) : [],
+                borderColor: '#4f46e5',
+                fill: true,
+                backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                tension: 0.4,
+            },
+        ],
+    };*/
+
+
+    const timelineData = {
+        labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+        datasets: [
+            {
+                label: 'Deals Per Year',
+                data: [3, 5, 7, 10, 8, 12],
                 borderColor: '#4f46e5',
                 fill: true,
                 backgroundColor: 'rgba(99, 102, 241, 0.2)',
@@ -166,12 +266,12 @@ const Benchmark = () => {
         ],
     };
 
-
+    // Method
     const CEOByGender = { Male: [], Female: [], Other: [] };
 
-    swissData.forEach(row => {
-        if (row['Gender CEO'] === 'Male' || row['Gender CEO'] === 'Female' || row['Gender CEO'] === 'Other') {
-            fundingByGender[row['Gender CEO']].push(row.Amount);
+    Array.isArray(swissData) && swissData.forEach(row => {
+        if (row['Gender CEO_x'] === 'Male' || row['Gender CEO_x'] === 'Female' || row['Gender CEO_x'] === 'Other') {
+            CEOByGender[row['Gender CEO_x']].push(row.Amount);
         }
     });
 
@@ -191,7 +291,7 @@ const Benchmark = () => {
         ],
     };
 
-
+    // Method
     const investorCharts = [
         {
             title: 'Investment Distribution by Sector & Canton',
@@ -226,9 +326,10 @@ const Benchmark = () => {
     ];
 
 
+    // Method
     const sectorFunding = {};
     swissData.forEach(row => {
-        const sector = row.Industry;
+        const sector = row.category_groups_list || row.category_list || 'Unknown';
         if (!sectorFunding[sector]) sectorFunding[sector] = [];
         sectorFunding[sector].push(row.raised_amount_usd);
     });
@@ -238,7 +339,13 @@ const Benchmark = () => {
         avgFunding: amounts.reduce((a, b) => a + b, 0) / amounts.length
     }));
 
-    /*const yourStartupFunding = {
+    const startupRow = swissData.find(row => row.Company === userName);
+
+    const yourSector = startupRow?.Industry || 'Unknown';
+
+    const yourFundingAmount = startupRow?.Amount || 0;
+
+    const yourStartupFunding = {
         sector: yourSector,
         funding: yourFundingAmount
     };
@@ -256,64 +363,77 @@ const Benchmark = () => {
         ],
     };
 
-    const valuationOverTime = globalData
-        .filter(row => row.org_name === yourStartupName)
-        .map(row => ({
-            date: new Date(row.announced_on), // Convert the announcement date to Date object
-            valuation: row.post_money_valuation_usd // Use USD for valuation
-        }))
-        .sort((a, b) => a.date - b.date); // Sort by date
-
-    // Calculate sector average valuations (assumed sector is stored in 'Industry' or another field)
-    const sectorValuationOverTime = globalData
-        .filter(row => row.Industry === yourStartupSector) // Filter for startups in the same sector
+    // Method
+    const yourValuations = globalData
+        .filter(row => row.org_name === userName)
         .map(row => ({
             date: new Date(row.announced_on),
             valuation: row.post_money_valuation_usd
         }))
         .sort((a, b) => a.date - b.date);
-        
-    // Calculate average valuation per round for the sector (for simplicity, we calculate for all rows)
-    const averageSectorValuation = sectorValuationOverTime.reduce((acc, curr) => {
-        const round = curr.date.getFullYear(); // Assume each row represents a different round
-        if (!acc[round]) acc[round] = { total: 0, count: 0 };
-        acc[round].total += curr.valuation;
-        acc[round].count += 1;
+
+    const yourStartupSector = globalData.find(
+        row => row.org_name === userName
+    )?.category_list?.split(',')[0].trim() || 'Unknown';
+
+    const sectorValuations = globalData
+        .filter(row => (row.category_groups_list || row.category_list) === yourStartupSector)
+        .map(row => ({
+            date: new Date(row.announced_on),
+            valuation: row.post_money_valuation_usd
+        }))
+        .sort((a, b) => a.date - b.date);
+
+    const sectorYearly = sectorValuations.reduce((acc, { date, valuation }) => {
+        const year = date.getFullYear();
+        if (!acc[year]) acc[year] = { total: 0, count: 0 };
+        acc[year].total += valuation;
+        acc[year].count += 1;
         return acc;
     }, {});
-    
-    const sectorAvgData = Object.entries(averageSectorValuation).map(([round, data]) => ({
-        round: round,
-        avgValuation: data.total / data.count
+
+    const sectorAvgData = Object.entries(sectorYearly).map(([year, { total, count }]) => ({
+        year: parseInt(year),
+        avgValuation: total / count
     }));
 
+    const allYears = Array.from(new Set([
+        ...yourValuations.map(v => v.date.getFullYear()),
+        ...sectorAvgData.map(v => v.year)
+    ])).sort();
+
     const lineData = {
-        labels: ['Seed', 'Series A', 'Series B'],
+        labels: allYears,
         datasets: [
             {
                 label: 'Your Valuation',
-                data: valuationOverTime.map(item => item.valuation),
+                data: allYears.map(year => {
+                    const v = yourValuations.find(val => val.date.getFullYear() === year);
+                    return v ? v.valuation : null;
+                }),
                 borderColor: '#4f46e5',
                 tension: 0.4,
             },
             {
                 label: 'Sector Avg',
-                data: sectorAvgData.map(item => item.avgValuation),
+                data: allYears.map(year => {
+                    const v = sectorAvgData.find(val => val.year === year);
+                    return v ? v.avgValuation : null;
+                }),
                 borderColor: '#a5b4fc',
                 borderDash: [5, 5],
                 tension: 0.4,
             },
         ],
-    };*/
+    };
 
-
+    // Method
     const investorRounds = globalData.map(row => ({
         round: row.name,
         investors: row.investor_count,
         amount: row.raised_amount_usd,
     }));
 
-    // Add additional bubble data manually or with more rows
     const moreInvestorRounds = [
         { round: 'Round X', investors: 15, amount: 5000000 },
         { round: 'Round Y', investors: 30, amount: 25000000 },
@@ -323,27 +443,25 @@ const Benchmark = () => {
         { round: 'Round U', investors: 10, amount: 3000000 },
     ];
 
-    // Merge the original data and the additional rounds
     const allInvestorRounds = investorRounds.concat(moreInvestorRounds);
 
-    // Bubble Chart Data
-    const bubbleData = {
+    /*const bubbleData = {
         datasets: [
             {
                 label: 'Investor Activity',
                 data: allInvestorRounds.map(round => ({
-                    x: round.investors, // Number of investors on the x-axis
-                    y: round.amount / 1000000, // Raised amount in millions for scale (optional)
-                    r: round.amount / 5000000, // Bubble size (scaled, adjust as needed)
+                    x: round.investors,
+                    y: round.amount / 1000000,
+                    r: round.amount / 5000000,
                 })),
                 backgroundColor: round => {
                     return round.amount > 10000000 ? '#4f46e5' : '#6366f1';
                 },
             },
         ],
-    };
+    };*/
 
-
+    // Method
     const phaseFunding = {};
     globalData.forEach(row => {
         const phase = row.name;
@@ -351,30 +469,28 @@ const Benchmark = () => {
         phaseFunding[phase].push(row.raised_amount_usd);
     });
 
-    // Calculate Average Funding per Phase
     const avgFundingPerPhase = Object.entries(phaseFunding).map(([phase, amounts]) => ({
         phase,
         avgFunding: amounts.reduce((a, b) => a + b, 0) / amounts.length
     }));
 
-    // Funnel Data Preparation (Dynamic phase extraction from the dataset)
-    const funnelData = {
-        labels: avgFundingPerPhase.map(item => item.phase), // Extract phase labels dynamically
+    /*const funnelData = {
+        labels: avgFundingPerPhase.map(item => item.phase),
         datasets: [
             {
                 label: 'Average Funding (USD)',
-                data: avgFundingPerPhase.map(item => item.avgFunding / 1000000), // Convert to millions for better visualization
-                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc'], // Color for each phase
+                data: avgFundingPerPhase.map(item => item.avgFunding / 1000000),
+                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc'],
             },
         ],
-    };
+    };*/
 
-
+    // Method
     const fundingByGender = { Male: [], Female: [] };
 
     swissData.forEach(row => {
-        if (row['Gender CEO'] === 'Male' || row['Gender CEO'] === 'Female') {
-            fundingByGender[row['Gender CEO']].push(row.Amount);
+        if (row['Gender CEO_x'] === 'Male' || row['Gender CEO_x'] === 'Female') {
+            fundingByGender[row['Gender CEO_x']].push(row.Amount);
         }
     });
 
@@ -393,34 +509,58 @@ const Benchmark = () => {
     const maleStats = calculateBoxPlotStats(fundingByGender['Male']);
     const femaleStats = calculateBoxPlotStats(fundingByGender['Female']);
 
-    const boxPlotData = {
+    const barChartData = {
         labels: ['Male CEO', 'Female CEO'],
         datasets: [
             {
-                label: 'Funding Distribution',
+                label: 'Funding Distribution in millions',
                 data: [
-                    {
-                        min: maleStats[0],
-                        q1: maleStats[1],
-                        median: maleStats[2],
-                        q3: maleStats[3],
-                        max: maleStats[4]
-                    },
-                    {
-                        min: femaleStats[0],
-                        q1: femaleStats[1],
-                        median: femaleStats[2],
-                        q3: femaleStats[3],
-                        max: femaleStats[4]
-                    }
+                    (maleStats[0] + maleStats[4]) / 2,  // Example to show range
+                    (femaleStats[0] + femaleStats[4]) / 2, // Example to show range
                 ],
                 backgroundColor: ['#4f46e5', '#f472b6'],
             },
         ],
     };
 
+    const bubbleData = {
+        datasets: [
+            {
+                label: 'Investor Activity',
+                data: [
+                    { x: 1, y: 2, r: 10 },
+                    { x: 2, y: 4, r: 20 },
+                    { x: 3, y: 3, r: 15 },
+                ],
+                backgroundColor: '#4f46e5',
+            },
+        ],
+    };
+
+    const funnelData = {
+        labels: ['Seed', 'Series A', 'Series B'],
+        datasets: [
+            {
+                label: 'Average Funding (M)',
+                data: [1, 5, 10],
+                backgroundColor: ['#4f46e5', '#6366f1', '#818cf8'],
+            },
+        ],
+    };
+
+    const boxPlotData = {
+        labels: ['Male CEO', 'Female CEO'],
+        datasets: [
+            {
+                label: 'Funding Received',
+                data: [5, 3],
+                backgroundColor: ['#4f46e5', '#f472b6'],
+            },
+        ],
+    };
+
     const chartsData = [
-        /*{
+        {
             title: 'Funding Amount vs Sector Average',
             description:
                 'Compare your startup’s funding with the sector or canton average to gauge relative performance.',
@@ -431,7 +571,7 @@ const Benchmark = () => {
             description:
                 'Track your startup’s valuation through different funding rounds and compare it with sector averages to see how it evolves.',
             Chart: () => <Line data={lineData} />,
-        },*/
+        },
         {
             title: 'Investor Activity',
             description:
@@ -451,9 +591,6 @@ const Benchmark = () => {
             Chart: () => <Bar data={boxPlotData} />,
         },
     ];
-
-
-    const chartRefs = useRef([]);
 
     const generatePDF = () => {
         const doc = new jsPDF();
@@ -508,7 +645,13 @@ const Benchmark = () => {
     };
 
     const downloader = {
-        handleDownload: (data, fileName) => {
+        handleDownload: (fileName) => {
+            let data;
+            if (userName === 'Founder') {
+                data = [barData, lineData, bubbleData, funnelData, barChartData];
+            } else {
+                data = [heatmapData, roiData, topBarData, timelineData, genderPieData];
+            }
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -517,17 +660,15 @@ const Benchmark = () => {
         },
     };
 
-    const [user, setUser] = React.useState('');
-
     const handleChangeUser = (event) => {
         setUser(event.target.value);
     };
 
-    const [userName, setUserName] = React.useState('');
-
     const handleChange = (event) => {
         setUserName(event.target.value);
     };
+
+    if (isLoading) return <div className='flex flex-col items-center gap-10 pt-36'>Loading...</div>;
 
     return (
         <div className='grid grid-cols-1 max-w-[60%] mx-auto'>
@@ -567,22 +708,38 @@ const Benchmark = () => {
                     </div>
 
                     <div>
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 120, border: "hidden" }}>
-                            <InputLabel id="demo-simple-select-standard-label">Age</InputLabel>
+                        <FormControl variant="standard" sx={{ minWidth: 100 }}>
+                            <InputLabel id="demo-simple-select-standard-label">Name</InputLabel>
                             <Select
                                 labelId="demo-simple-select-standard-label"
                                 id="demo-simple-select-standard"
                                 value={userName}
                                 onChange={handleChange}
                                 label="Age"
+                                MenuProps={{
+                                    PaperProps: {
+                                        style: {
+                                            maxHeight: 300,
+                                            maxWidth: 200,
+                                            overflowY: 'auto',
+                                            fontSize: '12px',
+                                        },
+                                    },
+                                }}
+                                sx={{ fontSize: '12px' }}
                             >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                {swissData.Title 
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+
+                                {user === 'Investor' ? swissData.map((row, index) => (
+                                    <MenuItem key={index} sx={{ fontSize: '12px' }} value={row.Investors}>
+                                        {row.Investors}
+                                    </MenuItem>
+                                ))
+                                    :
+                                    swissData.map((row, index) => (
+                                        <MenuItem key={index} sx={{ fontSize: '12px' }} value={row.Title}>
+                                            {row.Title}
+                                        </MenuItem>))
+                                }
                             </Select>
                         </FormControl>
                     </div>
@@ -590,7 +747,7 @@ const Benchmark = () => {
                     <div className='flex flex-row items-center gap-5'>
                         <button
                             className="text-white bg-black hover:bg-gray-800 h-8 hover:opacity-100 opacity-80 hover:text-red-600 items-center rounded-md text-xs py-2 px-4 transition-transform duration-100 ease-in-out active:scale-95"
-                            onClick={() => downloader.handleDownload(NaN, 'data.json')}
+                            onClick={() => downloader.handleDownload('data.json')}
                         >
                             Download Data
                         </button>
