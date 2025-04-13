@@ -8,6 +8,7 @@ import pandas as pd
 db_name = "swiss.db"
 
 def set_db_abs_path(db_filename):
+    global db_name
     db_name = db_filename
     db_path = os.path.abspath(db_filename)
     if not os.path.exists(db_path):
