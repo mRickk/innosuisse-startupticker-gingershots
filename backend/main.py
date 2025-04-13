@@ -86,7 +86,11 @@ def info():
 # ******************************************************************************
 
 
-@app.post("/api/search")
+# ******************************************************************************
+#                  API Utility functions
+# ******************************************************************************
+
+@app.get("/api/search")
 def search(query: str):
     """
     Search for a query in the database and return the results.
@@ -139,8 +143,21 @@ def upload_excel_world():
         return df
     except Exception as e:
         return f"Error: {e}"
+    
+from db_utils import set_db_abs_path
 
-
-# ******************************************************************************
-#                  API Utility functions
-# ******************************************************************************
+@app.post("/api/set-db")
+def set_database(region: str):
+    """
+    Update the database based on the selected region.
+    """
+    try:
+        if region == "Switzerland":
+            set_db_abs_path("swiss.db")
+        elif region == "World":
+            set_db_abs_path("world.db")
+        else:
+            return JSONResponse(content={"error": "Invalid region"}, status_code=400)
+        return {"message": f"Database switched to {region}"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
