@@ -20,7 +20,7 @@ Natural language input that connects to a SQL database, transforming text into q
         ├── components         
         ├── helpers            
         └── pages 
-
+```
 ## Logic
 
 1. Database Creation:
@@ -37,4 +37,4 @@ The generated dashboard is displayed on the React-based frontend. Simultaneously
 
 ## Running the code
 
-To run the backend everything has to be done from the CLI, to run the front you may go to 'frontend/src/' and run 'nvm start'
+To run the backend everything has to be done from the CLI, to run the front you may go to `frontend/src/` and run `nvm start`
