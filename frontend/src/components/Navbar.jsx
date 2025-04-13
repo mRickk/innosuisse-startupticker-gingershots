@@ -29,7 +29,7 @@ const Navbar = () => {
   }
 
   return (
-    <Disclosure as="nav" className="bg-gray-800 fixed top-0 w-[100%]">
+    <Disclosure as="nav" className="bg-gray-800 fixed top-0 w-full">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -59,7 +59,7 @@ const Navbar = () => {
                     aria-current={item.current ? 'page' : undefined}
                     className={classNames(
                       item.current ? 'selected' : '',
-                      'text-white rounded-md px-3 py-2 text-sm font-medium',
+                      'text-white rounded-md px-3 py-2 text-base font-medium',
                     )}
                   >
                     {item.name}
@@ -71,7 +71,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      <DisclosurePanel className="sm:hidden">
+      <DisclosurePanel className="sm:hidden w-[80%]">
         <div className="space-y-1 px-2 pt-2 pb-3">
           {navigation.map((item) => (
             <DisclosureButton
@@ -82,7 +82,7 @@ const Navbar = () => {
               onClick={() => handleClick(item.name)}
               className={classNames(
                 item.current ? ' selected' : '',
-                'text-white rounded-md px-3 py-2 text-sm font-medium',
+                'text-white rounded-md px-3 py-2 text-base font-medium',
               )}
             >
               {item.name}
