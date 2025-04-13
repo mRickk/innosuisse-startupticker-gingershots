@@ -9,7 +9,7 @@ Natural language input that connects to a SQL database, transforming text into q
 ├── backend
 │   ├── sql_creation         
 │   ├── schema_creation      
-│   ├── texttoquery_translation
+│   ├── text_to_query_translation
 │   └── data
 │       ├── crunchbase         
 │       └── startupticker      
